@@ -1,6 +1,5 @@
 //ProfilePage.tsx
 import { useAuth0 } from "@auth0/auth0-react";
-import PageLayout from "./PageLayout.tsx";
 import { Col } from "react-bootstrap";
 
 const ProfilePage: React.FC = () =>{
@@ -18,7 +17,7 @@ const ProfilePage: React.FC = () =>{
     getAccessTokenSilently().then(token => console.log('token', token))
 
     return(
-        <PageLayout>
+  <div>
             <h2>Profile Page</h2>
             <Col>
                 {user?.picture && <img src={user.picture} alt={user.name} />}
@@ -31,7 +30,7 @@ const ProfilePage: React.FC = () =>{
                     }
                 </div>
             </Col>
-        </PageLayout>
+            </div>
     )
 }
 
