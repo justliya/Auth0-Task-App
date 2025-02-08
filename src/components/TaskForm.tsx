@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import Task from "../hooks/Types";
 
@@ -7,12 +7,11 @@ interface TaskFormProps {
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({ onSubmit }) => {
-  const [task, setTask] = useState<Omit<Task, "id">>(
-    () => {
-      const savedTask = sessionStorage.getItem("task");
-      return savedTask ? JSON.parse(savedTask) : { title: "", description: "", completed: false };
-    }
-  );
+  const [task, setTask] = useState<Omit<Task, "id">>({
+    title: "",
+    description: "",
+    completed: false,
+  });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -23,20 +22,29 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ ...task, id: Date.now().toString() });
-    setTask({ title: "", description: "", completed: false }); // Reset form fields
-    sessionStorage.removeItem("task"); // Clear session storage after submission
+    const newTask = { ...task, id: Date.now().toString() };
+
+    // Retrieve existing tasks from sessionStorage
+    const storedTasks = sessionStorage.getItem("tasks");
+    let tasks: Task[] = storedTasks ? JSON.parse(storedTasks) : [];
+
+    // 🔹 Ensure the task is not a duplicate before adding
+    if (!tasks.some((t) => t.title === newTask.title)) {
+      tasks = [...tasks, newTask];
+      sessionStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    // Reset form fields
+    setTask({ title: "", description: "", completed: false });
+
+    // Notify parent component
+    onSubmit(newTask);
   };
 
-  useEffect(() => {
-    sessionStorage.setItem("task", JSON.stringify(task));
-  }, [task]);
-
   const clearSessionStorage = () => {
-    sessionStorage.removeItem("task");
+    sessionStorage.removeItem("tasks");
     setTask({ title: "", description: "", completed: false });
-    console.log("Session Storage cleared.");
-    alert("Session Storage cleared.");
+    alert("All tasks have been cleared.");
   };
 
   return (
@@ -72,8 +80,13 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit }) => {
             </Button>
           </Col>
           <Col>
-            <Button className="m-3 float-right" type="button" onClick={clearSessionStorage} variant="danger">
-              Clear All Task
+            <Button
+              className="m-3 float-right"
+              type="button"
+              onClick={clearSessionStorage}
+              variant="danger"
+            >
+              Clear All Tasks
             </Button>
           </Col>
         </Row>

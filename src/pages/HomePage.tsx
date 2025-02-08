@@ -1,4 +1,3 @@
-// HomePage.tsx (Dashboard)
 import React, { useState, useEffect } from "react";
 import { Col, Container, Row } from "react-bootstrap";
 import { useAuth0 } from "@auth0/auth0-react";
@@ -19,7 +18,7 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     const storedTasks = sessionStorage.getItem("tasks");
     if (storedTasks) {
-      setTasks(JSON.parse(storedTasks || "[]"));
+      setTasks(JSON.parse(storedTasks));
     }
   }, []);
 
