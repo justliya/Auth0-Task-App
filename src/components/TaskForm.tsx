@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import Task from "../hooks/Types";
 
@@ -7,11 +7,12 @@ interface TaskFormProps {
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({ onSubmit }) => {
-  const [task, setTask] = useState<Omit<Task, "id">>({
-    title: "",
-    description: "",
-    completed: false,
-  });
+  const [task, setTask] = useState<Omit<Task, "id">>(
+    () => {
+      const savedTask = sessionStorage.getItem("task");
+      return savedTask ? JSON.parse(savedTask) : { title: "", description: "", completed: false };
+    }
+  );
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -24,23 +25,16 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit }) => {
     e.preventDefault();
     onSubmit({ ...task, id: Date.now().toString() });
     setTask({ title: "", description: "", completed: false }); // Reset form fields
+    sessionStorage.removeItem("task"); // Clear session storage after submission
   };
 
-  const saveToSessionStorage = () => {
-    if (task.title.trim() !== "" || (task.description && task.description.trim() !== "")) {
-      sessionStorage.setItem(
-        "task",
-        JSON.stringify(task)
-      );
-      console.log(`Stored task: ${JSON.stringify(task)}`);
-      alert("Task saved to session storage!");
-    } else {
-      alert("Please fill in the task title or description.");
-    }
-  };
+  useEffect(() => {
+    sessionStorage.setItem("task", JSON.stringify(task));
+  }, [task]);
 
   const clearSessionStorage = () => {
-    sessionStorage.clear();
+    sessionStorage.removeItem("task");
+    setTask({ title: "", description: "", completed: false });
     console.log("Session Storage cleared.");
     alert("Session Storage cleared.");
   };
@@ -73,30 +67,13 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit }) => {
 
         <Row>
           <Col>
-            <Button
-              className="m-3"
-              type="submit"
-              variant="primary"
-            >
+            <Button className="m-3" type="submit" variant="primary">
               Submit Task
-            </Button>
-            <Button
-              className="m-3"
-              type="button"
-              onClick={saveToSessionStorage}
-              variant="success"
-            >
-              Save to Session Storage
             </Button>
           </Col>
           <Col>
-            <Button
-              className="m-3 float-right"
-              type="button"
-              onClick={clearSessionStorage}
-              variant="danger"
-            >
-              Clear Session Storage
+            <Button className="m-3 float-right" type="button" onClick={clearSessionStorage} variant="danger">
+              Clear All Task
             </Button>
           </Col>
         </Row>
