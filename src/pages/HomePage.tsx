@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Col, Container, ListGroup, Badge, Button } from "react-bootstrap";
+import { Col, Container, ListGroup, Badge, Button, Alert, Card } from "react-bootstrap";
 import { useAuth0 } from "@auth0/auth0-react";
 import TaskForm from "../components/TaskForm";
 import LoginButton from "../components/LoginButton";
@@ -16,11 +16,16 @@ const HomePage: React.FC = () => {
   const { user, isAuthenticated } = useAuth0();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedTasks = sessionStorage.getItem("tasks");
-    if (storedTasks) {
-      setTasks(JSON.parse(storedTasks));
+    try {
+      const storedTasks = sessionStorage.getItem("tasks");
+      if (storedTasks) {
+        setTasks(JSON.parse(storedTasks));
+      }
+    } catch (err) {
+      console.error("Error loading tasks from session storage:", err);
     }
   }, []);
 
@@ -29,58 +34,96 @@ const HomePage: React.FC = () => {
   }, [tasks]);
 
   const handleTaskSubmit = (task: Task) => {
-    if (editingTask) {
-      handleTaskEdit(task);
-    } else {
-      setTasks((prevTasks) => [...prevTasks, task]);
+    try {
+      if (editingTask) {
+        handleTaskEdit(task);
+      } else {
+        setTasks((prevTasks) => [...prevTasks, task]);
+      }
+      setEditingTask(null);
+      setError(null);
+    } catch (err) {
+      console.error("Error occurred while submitting the task:", err);
+      setError("Failed to submit the task. Please try again.");
     }
-    setEditingTask(null);
   };
 
   const handleTaskEdit = (updatedTask: Task) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
-    );
+    try {
+      setTasks((prevTasks) =>
+        prevTasks.map((task) => (task.id === updatedTask.id ? updatedTask : task))
+      );
+      setError(null);
+    } catch (err) {
+      console.error("Error updating task:", err);
+      setError("Failed to update the task. Please try again.");
+    }
   };
-
+  
   const handleTaskDelete = (taskId: string) => {
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+    try {
+      setTasks((prevTasks) => {
+        const updatedTasks = prevTasks.filter((task) => task.id !== taskId);
+        sessionStorage.setItem("tasks", JSON.stringify(updatedTasks));
+        return updatedTasks;
+      });
+      setError(null);
+    } catch (err) {
+      console.error("Error deleting task:", err);
+      setError("Failed to delete the task. Please try again.");
+    }
   };
 
   return (
     <Container className="mt-5">
       <Col>
-        <h1>Task Manager Dashboard</h1>
+        <h1 className="text-success">Task Manager Dashboard</h1>
         {!isAuthenticated ? (
           <>
+            <p className="text-muted">Login or Register to manage your tasks efficiently.</p>
             <LoginButton />
             <RegisterButton />
           </>
         ) : (
           <>
-            <h3>Welcome, {user?.name}!</h3>
+            {error && (
+              <Alert variant="danger" className="text-center">
+                {error}
+              </Alert>
+            )}
+            <Alert variant="success" className="text-center">
+              Welcome, <strong>{user?.name}</strong>! Organize your tasks below.
+            </Alert>
             <TaskForm onSubmit={handleTaskSubmit} initialTask={editingTask || undefined} />
-            <h2 className="mt-4">Your Tasks</h2>
+            <h2 className="mt-4 text-success">Your Tasks</h2>
             {tasks.length > 0 ? (
               <ListGroup>
                 {tasks.map((task) => (
                   <ListGroup.Item key={task.id} className="d-flex justify-content-between align-items-center">
-                    <div>
-                      <strong>{task.title}</strong>
-                      <p>{task.description}</p>
-                      <Badge bg={task.completed ? "success" : "secondary"}>
-                        {task.completed ? "Completed" : "Pending"}
-                      </Badge>
-                    </div>
-                    <div>
-                      <Button variant="warning" onClick={() => setEditingTask(task)} className="me-2">Edit</Button>
-                      <Button variant="danger" onClick={() => handleTaskDelete(task.id)}>Delete</Button>
-                    </div>
+                    <Card className="w-100 p-3 shadow-sm border-success">
+                      <Card.Body>
+                        <Card.Title className="d-flex justify-content-between align-items-center">
+                          <span>{task.title}</span>
+                          <Badge bg={task.completed ? "success" : "warning"}>
+                            {task.completed ? "Completed" : "Pending"}
+                          </Badge>
+                        </Card.Title>
+                        <Card.Text>{task.description}</Card.Text>
+                        <div className="d-flex justify-content-end">
+                          <Button variant="outline-success" onClick={() => setEditingTask(task)} className="me-2">
+                            Edit
+                          </Button>
+                          <Button variant="outline-danger" onClick={() => handleTaskDelete(task.id)}>
+                            Delete
+                          </Button>
+                        </div>
+                      </Card.Body>
+                    </Card>
                   </ListGroup.Item>
                 ))}
               </ListGroup>
             ) : (
-              <p>No tasks to display. Add a task above!</p>
+              <p className="text-muted">No tasks to display. Start by adding a new task above.</p>
             )}
           </>
         )}

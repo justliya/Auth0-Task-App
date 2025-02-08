@@ -48,19 +48,22 @@ const TaskPage: React.FC = () => {
 
   return (
     <Container className="mt-5">
-      <h1>Task Checklist</h1>
+      <h1 className="text-success text-center">Task Checklist</h1>
       {tasks.length > 0 ? (
-        <div className="d-flex flex-wrap gap-3">
+        <div className="d-flex flex-wrap justify-content-center gap-3">
           {tasks.map((task) => (
-            <Card key={task.id} className="mb-3" style={{ width: "18rem" }}>
+            <Card key={task.id} className="shadow-sm p-3 border-success" style={{ width: "20rem" }}>
               <Card.Body>
-                <Card.Title>
+                <Card.Title className="d-flex justify-content-between align-items-center">
                   <Form.Check
                     type="checkbox"
                     label={task.title}
                     checked={task.completed}
                     onChange={() => handleTaskToggle(task.id)}
                   />
+                  <Badge bg={task.completed ? "success" : "warning"}>
+                    {task.completed ? "Completed" : "Pending"}
+                  </Badge>
                 </Card.Title>
                 {editingTaskId === task.id ? (
                   <>
@@ -71,7 +74,7 @@ const TaskPage: React.FC = () => {
                     />
                     <Button
                       variant="success"
-                      className="mt-2"
+                      className="mt-2 w-100"
                       onClick={() => handleSaveDescription(task.id)}
                     >
                       Save
@@ -80,20 +83,21 @@ const TaskPage: React.FC = () => {
                 ) : (
                   <>
                     <Card.Text>{task.description}</Card.Text>
-                    <Button variant="warning" onClick={() => handleEditClick(task)}>
+                    <Button
+                      variant="outline-warning"
+                      className="w-100"
+                      onClick={() => handleEditClick(task)}
+                    >
                       Edit Description
                     </Button>
                   </>
                 )}
-                <Badge bg={task.completed ? "success" : "secondary"} className="mt-2">
-                  {task.completed ? "Completed" : "Pending"}
-                </Badge>
               </Card.Body>
             </Card>
           ))}
         </div>
       ) : (
-        <p>No tasks available.</p>
+        <p className="text-muted text-center">No tasks available.</p>
       )}
     </Container>
   );

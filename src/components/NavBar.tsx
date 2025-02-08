@@ -8,25 +8,25 @@ const NavBar: React.FC = () => {
   const { isAuthenticated } = useAuth0();
 
   return (
-    <Navbar bg="dark" variant="dark" expand="lg">
+    <Navbar bg="success" variant="dark" expand="lg" className="shadow-sm p-3">
       <Container>
-        <Navbar.Brand as={Link} to="/">
+        <Navbar.Brand as={Link} to="/" className="fw-bold text-white">
           Task Manager
         </Navbar.Brand>
         <ThemeToggle />
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            <Nav.Link as={Link} to="/">
+          <Nav className="ms-auto">
+            <Nav.Link as={Link} to="/" className="text-white fw-bold">
               Home
             </Nav.Link>
             {isAuthenticated && (
               <>
-                <Nav.Link as={Link} to="/profile">
+                <Nav.Link as={Link} to="/profile" className="text-white fw-bold">
                   Profile
                 </Nav.Link>
-                <Nav.Link as={Link} to="/task">
-                 Task
+                <Nav.Link as={Link} to="/task" className="text-white fw-bold">
+                  Tasks
                 </Nav.Link>
               </>
             )}

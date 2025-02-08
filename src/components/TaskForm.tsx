@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Col, Container, Form, Row } from "react-bootstrap";
+import { Button, Col, Container, Form, Row, Card, Alert } from "react-bootstrap";
 import Task from "../hooks/Types";
 
 interface TaskFormProps {
@@ -13,6 +13,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, initialTask }) => {
     description: initialTask?.description || "",
     completed: initialTask?.completed || false,
   });
+  const [showMessage, setShowMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialTask) {
@@ -36,49 +37,66 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, initialTask }) => {
 
     if (initialTask) {
       tasks = tasks.map((t) => (t.id === initialTask.id ? newTask : t));
+      setShowMessage("Task successfully updated!");
     } else {
       tasks.push(newTask);
+      setShowMessage("Task successfully added!");
     }
 
     sessionStorage.setItem("tasks", JSON.stringify(tasks));
     setTask({ title: "", description: "", completed: false });
     onSubmit(newTask);
+
+    // Hide the success message after 3 seconds
+    setTimeout(() => setShowMessage(null), 3000);
   };
 
   return (
     <Container>
-      <Form onSubmit={handleSubmit}>
-        <Form.Group>
-          <Form.Label>Title</Form.Label>
-          <Form.Control
-            type="text"
-            name="title"
-            value={task.title}
-            onChange={handleChange}
-            placeholder="Enter task title"
-            required
-          />
-        </Form.Group>
-        <Form.Group>
-          <Form.Label>Description</Form.Label>
-          <Form.Control
-            as="textarea"
-            name="description"
-            value={task.description}
-            onChange={handleChange}
-            placeholder="Enter task description"
-            required
-          />
-        </Form.Group>
+      <Card className="shadow-lg p-4 border-success bg-light">
+        <Card.Title className="text-success text-center">
+          {initialTask ? "Edit Task" : "Add a New Task"}
+        </Card.Title>
+        <Form onSubmit={handleSubmit}>
+          <Form.Group>
+            <Form.Label className="fw-bold text-success">Title</Form.Label>
+            <Form.Control
+              type="text"
+              name="title"
+              value={task.title}
+              onChange={handleChange}
+              placeholder="Enter task title"
+              required
+              className="mb-3 shadow-sm"
+            />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label className="fw-bold text-success">Description</Form.Label>
+            <Form.Control
+              as="textarea"
+              name="description"
+              value={task.description}
+              onChange={handleChange}
+              placeholder="Enter task description"
+              required
+              className="mb-3 shadow-sm"
+            />
+          </Form.Group>
 
-        <Row>
-          <Col>
-            <Button className="m-3" type="submit" variant="primary">
-              {initialTask ? "Update Task" : "Submit Task"}
-            </Button>
-          </Col>
-        </Row>
-      </Form>
+          <Row>
+            <Col className="text-center">
+              <Button className="px-4 py-2 fw-bold shadow-sm rounded-pill" type="submit" variant="success">
+                {initialTask ? "Update Task" : "Add Task"}
+              </Button>
+            </Col>
+          </Row>
+        </Form>
+        {showMessage && (
+          <Alert variant="success" className="mt-3 text-center">
+            {showMessage}
+          </Alert>
+        )}
+      </Card>
     </Container>
   );
 };

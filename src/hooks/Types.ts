@@ -1,5 +1,3 @@
-// Task.ts
-
 interface Task {
     id: string;
     title: string;

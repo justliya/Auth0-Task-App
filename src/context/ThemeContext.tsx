@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-// ThemeContext.tsx
+
 import React, { createContext, useContext, useState } from "react";
 
 interface ThemeContextType {
