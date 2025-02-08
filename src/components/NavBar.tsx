@@ -26,7 +26,7 @@ const NavBar: React.FC = () => {
                   Profile
                 </Nav.Link>
                 <Nav.Link as={Link} to="/task">
-                  New Task
+                 Task
                 </Nav.Link>
               </>
             )}
