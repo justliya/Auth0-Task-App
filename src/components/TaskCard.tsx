@@ -1,6 +1,5 @@
-// TaskCard.tsx
 import React from "react";
-import { Card, Form } from "react-bootstrap";
+import { Card, Button } from "react-bootstrap";
 
 interface Task {
   id: string;
@@ -11,20 +10,24 @@ interface Task {
 
 interface TaskCardProps {
   task: Task;
-  onToggle: (taskId: string) => void;
+  onEdit: (task: Task) => void;
+  onDelete: (taskId: string) => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({ task, onToggle }) => {
+const TaskCard: React.FC<TaskCardProps> = ({ task, onEdit, onDelete }) => {
   return (
     <Card className="mb-3">
       <Card.Body>
-        <Form.Check
-          type="checkbox"
-          label={<strong>{task.title}</strong>}
-          checked={task.completed}
-          onChange={() => onToggle(task.id)}
-        />
+        <Card.Title>
+          <strong>{task.title}</strong>
+        </Card.Title>
         <Card.Text>{task.description || "No description provided"}</Card.Text>
+        <Button variant="warning" onClick={() => onEdit(task)} className="me-2">
+          Edit
+        </Button>
+        <Button variant="danger" onClick={() => onDelete(task.id)}>
+          Delete
+        </Button>
       </Card.Body>
     </Card>
   );

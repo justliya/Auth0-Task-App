@@ -4,14 +4,13 @@ import Task from "../hooks/Types";
 
 interface TaskFormProps {
   onSubmit: (task: Task) => void;
+  initialTask?: Task;
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ onSubmit }) => {
-  const [task, setTask] = useState<Omit<Task, "id">>({
-    title: "",
-    description: "",
-    completed: false,
-  });
+const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, initialTask }) => {
+  const [task, setTask] = useState<Omit<Task, "id">>(
+    initialTask || { title: "", description: "", completed: false }
+  );
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -22,29 +21,20 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newTask = { ...task, id: Date.now().toString() };
+    const newTask = initialTask ? { ...initialTask, ...task } : { ...task, id: Date.now().toString() };
 
-    // Retrieve existing tasks from sessionStorage
     const storedTasks = sessionStorage.getItem("tasks");
     let tasks: Task[] = storedTasks ? JSON.parse(storedTasks) : [];
 
-    // 🔹 Ensure the task is not a duplicate before adding
-    if (!tasks.some((t) => t.title === newTask.title)) {
-      tasks = [...tasks, newTask];
-      sessionStorage.setItem("tasks", JSON.stringify(tasks));
+    if (initialTask) {
+      tasks = tasks.map((t) => (t.id === initialTask.id ? newTask : t));
+    } else {
+      tasks.push(newTask);
     }
 
-    // Reset form fields
+    sessionStorage.setItem("tasks", JSON.stringify(tasks));
     setTask({ title: "", description: "", completed: false });
-
-    // Notify parent component
     onSubmit(newTask);
-  };
-
-  const clearSessionStorage = () => {
-    sessionStorage.removeItem("tasks");
-    setTask({ title: "", description: "", completed: false });
-    alert("All tasks have been cleared.");
   };
 
   return (
@@ -76,17 +66,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit }) => {
         <Row>
           <Col>
             <Button className="m-3" type="submit" variant="primary">
-              Submit Task
-            </Button>
-          </Col>
-          <Col>
-            <Button
-              className="m-3 float-right"
-              type="button"
-              onClick={clearSessionStorage}
-              variant="danger"
-            >
-              Clear All Tasks
+              {initialTask ? "Update Task" : "Submit Task"}
             </Button>
           </Col>
         </Row>
