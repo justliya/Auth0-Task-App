@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Form, ListGroup, Badge, Button } from "react-bootstrap";
+import { Container, Form, Card, Badge, Button } from "react-bootstrap";
 
 interface Task {
   id: string;
@@ -50,44 +50,48 @@ const TaskPage: React.FC = () => {
     <Container className="mt-5">
       <h1>Task Checklist</h1>
       {tasks.length > 0 ? (
-        <ListGroup>
+        <div className="d-flex flex-wrap gap-3">
           {tasks.map((task) => (
-            <ListGroup.Item key={task.id}>
-              <Form.Check
-                type="checkbox"
-                label={task.title}
-                checked={task.completed}
-                onChange={() => handleTaskToggle(task.id)}
-              />
-              {editingTaskId === task.id ? (
-                <>
-                  <Form.Control
-                    as="textarea"
-                    value={editedDescription}
-                    onChange={(e) => setEditedDescription(e.target.value)}
+            <Card key={task.id} className="mb-3" style={{ width: "18rem" }}>
+              <Card.Body>
+                <Card.Title>
+                  <Form.Check
+                    type="checkbox"
+                    label={task.title}
+                    checked={task.completed}
+                    onChange={() => handleTaskToggle(task.id)}
                   />
-                  <Button
-                    variant="success"
-                    className="mt-2"
-                    onClick={() => handleSaveDescription(task.id)}
-                  >
-                    Save
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <p>{task.description}</p>
-                  <Button variant="warning" onClick={() => handleEditClick(task)}>
-                    Edit Description
-                  </Button>
-                </>
-              )}
-              <Badge bg={task.completed ? "success" : "secondary"}>
-                {task.completed ? "Completed" : "Pending"}
-              </Badge>
-            </ListGroup.Item>
+                </Card.Title>
+                {editingTaskId === task.id ? (
+                  <>
+                    <Form.Control
+                      as="textarea"
+                      value={editedDescription}
+                      onChange={(e) => setEditedDescription(e.target.value)}
+                    />
+                    <Button
+                      variant="success"
+                      className="mt-2"
+                      onClick={() => handleSaveDescription(task.id)}
+                    >
+                      Save
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Card.Text>{task.description}</Card.Text>
+                    <Button variant="warning" onClick={() => handleEditClick(task)}>
+                      Edit Description
+                    </Button>
+                  </>
+                )}
+                <Badge bg={task.completed ? "success" : "secondary"} className="mt-2">
+                  {task.completed ? "Completed" : "Pending"}
+                </Badge>
+              </Card.Body>
+            </Card>
           ))}
-        </ListGroup>
+        </div>
       ) : (
         <p>No tasks available.</p>
       )}

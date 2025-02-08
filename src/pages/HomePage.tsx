@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Col, Container, Row } from "react-bootstrap";
+import { Col, Container, ListGroup, Badge, Button } from "react-bootstrap";
 import { useAuth0 } from "@auth0/auth0-react";
-import TaskCard from "../components/TaskCard";
 import TaskForm from "../components/TaskForm";
 import LoginButton from "../components/LoginButton";
+import RegisterButton from "../components/RegisterButton";
 
 interface Task {
   id: string;
@@ -15,7 +15,7 @@ interface Task {
 const HomePage: React.FC = () => {
   const { user, isAuthenticated } = useAuth0();
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   useEffect(() => {
     const storedTasks = sessionStorage.getItem("tasks");
@@ -34,7 +34,7 @@ const HomePage: React.FC = () => {
     } else {
       setTasks((prevTasks) => [...prevTasks, task]);
     }
-    setEditingTask(undefined);
+    setEditingTask(null);
   };
 
   const handleTaskEdit = (updatedTask: Task) => {
@@ -52,20 +52,33 @@ const HomePage: React.FC = () => {
       <Col>
         <h1>Task Manager Dashboard</h1>
         {!isAuthenticated ? (
-          <LoginButton />
+          <>
+            <LoginButton />
+            <RegisterButton />
+          </>
         ) : (
           <>
             <h3>Welcome, {user?.name}!</h3>
-            <TaskForm onSubmit={handleTaskSubmit} initialTask={editingTask} />
+            <TaskForm onSubmit={handleTaskSubmit} initialTask={editingTask || undefined} />
             <h2 className="mt-4">Your Tasks</h2>
             {tasks.length > 0 ? (
-              <Row>
+              <ListGroup>
                 {tasks.map((task) => (
-                  <Col md={4} key={task.id}>
-                    <TaskCard task={task} onEdit={() => setEditingTask(task)} onDelete={handleTaskDelete} />
-                  </Col>
+                  <ListGroup.Item key={task.id} className="d-flex justify-content-between align-items-center">
+                    <div>
+                      <strong>{task.title}</strong>
+                      <p>{task.description}</p>
+                      <Badge bg={task.completed ? "success" : "secondary"}>
+                        {task.completed ? "Completed" : "Pending"}
+                      </Badge>
+                    </div>
+                    <div>
+                      <Button variant="warning" onClick={() => setEditingTask(task)} className="me-2">Edit</Button>
+                      <Button variant="danger" onClick={() => handleTaskDelete(task.id)}>Delete</Button>
+                    </div>
+                  </ListGroup.Item>
                 ))}
-              </Row>
+              </ListGroup>
             ) : (
               <p>No tasks to display. Add a task above!</p>
             )}
@@ -77,4 +90,3 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
-

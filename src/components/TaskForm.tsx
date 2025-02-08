@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import Task from "../hooks/Types";
 
@@ -8,9 +8,17 @@ interface TaskFormProps {
 }
 
 const TaskForm: React.FC<TaskFormProps> = ({ onSubmit, initialTask }) => {
-  const [task, setTask] = useState<Omit<Task, "id">>(
-    initialTask || { title: "", description: "", completed: false }
-  );
+  const [task, setTask] = useState<Omit<Task, "id">>({
+    title: initialTask?.title || "",
+    description: initialTask?.description || "",
+    completed: initialTask?.completed || false,
+  });
+
+  useEffect(() => {
+    if (initialTask) {
+      setTask({ title: initialTask.title, description: initialTask.description || "", completed: initialTask.completed });
+    }
+  }, [initialTask]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
