@@ -1,12 +1,11 @@
-
-import React from "react";
+import React from "react"
 import { Route, Routes } from "react-router-dom";
 import NavBar from "./components/NavBar";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
-import { useAuth0 } from "@auth0/auth0-react";
 import TaskPage from "./pages/TaskPage";
-
+import { useAuth0 } from "@auth0/auth0-react";
+import { ThemeProvider } from "./context/ThemeContext";
 
 const App: React.FC = () => {
   const { isLoading } = useAuth0();
@@ -14,20 +13,14 @@ const App: React.FC = () => {
   if (isLoading) return <div>Loading...</div>;
 
   return (
-    <>
-      {/* Navbar displayed on all pages */}
+    <ThemeProvider>
       <NavBar />
-
-      {/* Routes for the application */}
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route
-          path="/profile"
-          element={<ProfilePage/>} />
-    
-        <Route path="/task" element={<TaskPage/>} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/task" element={<TaskPage />} />
       </Routes>
-    </>
+    </ThemeProvider>
   );
 };
 

@@ -1,5 +1,6 @@
 import React from "react";
 import { Nav, Navbar, Container } from "react-bootstrap";
+import ThemeToggle from "./ThemeToggle";
 import { useAuth0 } from "@auth0/auth0-react";
 import { Link } from "react-router-dom";
 
@@ -12,6 +13,7 @@ const NavBar: React.FC = () => {
         <Navbar.Brand as={Link} to="/">
           Task Manager
         </Navbar.Brand>
+        <ThemeToggle />
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
